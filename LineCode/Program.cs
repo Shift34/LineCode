@@ -207,17 +207,21 @@ namespace Line_Code__5_2_
             //    Console.WriteLine("\n");
             //}
 
-            var syndrome = Multiply_Matrix(code, Transpant_H);
+            var syndrome = Multiply_Matrix(code, Transpant_H).ToStringJoin();
 
-            Console.WriteLine($"Синдром {syndrome.ToStringJoin()}");
+            Console.WriteLine($"Syndrome {syndrome}");
 
-            if (syndrome.Count(x => x == 0) == syndrome.Count)
+            if (Syndromes[syndrome] == 0)
             {
-                Console.WriteLine("Ошибок нет");
+                Console.WriteLine("No error");
                 return code;
             }
 
-            var index = Syndromes[syndrome.ToStringJoin()] - 1;
+            var index = Syndromes[syndrome] - 1;
+
+            var errorVector = Enumerable.Repeat(0, 5).ToList();
+            errorVector[index] = 1;
+            Console.WriteLine($"Error vector: {errorVector.ToStringJoin()}");
 
             var NumVector = 0;
             var minW = 6;
