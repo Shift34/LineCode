@@ -46,7 +46,7 @@ namespace Line_Code__5_2_
                     for (int e = 0; e < 5; e++)
                     {
                         var encCopy = enc.ToList();
-                        encCopy[e] = (encCopy[e] + 1) % 2;
+                        encCopy[e] = 1 - encCopy[e];
 
                         Console.WriteLine($"Message: {i}{j}");
                         Console.WriteLine($"Encoded: {enc.ToStringJoin()}");
@@ -55,6 +55,9 @@ namespace Line_Code__5_2_
                         var dec = Decoding(encCopy);
                         Console.WriteLine($"Decoded: {dec.ToStringJoin()}");
                         Console.WriteLine(new string('-', 30));
+
+                        if (!dec.SequenceEqual(enc))
+                            throw new Exception();
                     }
                 }
             }
@@ -143,30 +146,29 @@ namespace Line_Code__5_2_
             return res;
         }
 
-        //public static List<int> Sum_Vector(List<int> vec1, List<int> vec2)
-        //{
-        //    var res = new List<int>(vec1.Count);
+        public static List<int> Sum_Vector(List<int> vec1, List<int> vec2)
+        {
+            var res = new List<int>(vec1.Count);
 
-        //    for (int i = 0; i < vec1.Count; i++)
-        //    {
-        //        res.Add((vec1[i] + vec2[i]) % 2);
-        //    }
+            for (int i = 0; i < vec1.Count; i++)
+            {
+                res.Add((vec1[i] + vec2[i]) % 2);
+            }
 
-        //    return res;
-        //}
+            return res;
+        }
 
         static List<int> Decoding(List<int> code)
         {
-            //смежные классы:
             var A0 = new int[4, 5]
             {
                 { 0, 0, 0, 0, 0 },
-                { 1, 0, 1, 1, 1 },
+                { 1, 0, 1, 0, 1 },
                 { 0, 1, 0, 1, 1 },
-                { 1, 1, 1, 0, 0 }
+                { 1, 1, 1, 1, 0 }
             };
 
-            var RelatedСlass = new List<int[,]>();
+            var relatedСlasses = new List<int[,]>();
 
             var vectors = new int[7, 5]
             {
@@ -182,6 +184,7 @@ namespace Line_Code__5_2_
             for (int i = 0; i < 7; i++)
             {
                 var Ai = new int[4, 5];
+
                 for (int j = 0; j < 4; j++)
                 {
                     for (int r = 0; r < 5; r++)
@@ -190,7 +193,7 @@ namespace Line_Code__5_2_
                     }
                 }
 
-                RelatedСlass.Add(Ai);
+                relatedСlasses.Add(Ai);
             }
 
             //Console.WriteLine("Смежные классы не включая А0: ");
@@ -200,7 +203,7 @@ namespace Line_Code__5_2_
             //    {
             //        for (int r = 0; r < 5; r++)
             //        {
-            //            Console.Write($"{RelatedСlass[i][j, r]} ");
+            //            Console.Write($"{relatedСlasses[i][j, r]} ");
             //        }
             //        Console.WriteLine();
             //    }
@@ -219,40 +222,32 @@ namespace Line_Code__5_2_
 
             var index = Syndromes[syndrome] - 1;
 
-            var errorVector = Enumerable.Repeat(0, 5).ToList();
-            errorVector[index] = 1;
-            Console.WriteLine($"Error vector: {errorVector.ToStringJoin()}");
-
-            var NumVector = 0;
-            var minW = 6;
+            var numVector = 0;
+            var minWeight = 6;
 
             for (int j = 0; j < 4; j++)
             {
-                var w = 0;
+                var tempWeight = 0;
                 for (int r = 0; r < 5; r++)
                 {
-                    w += RelatedСlass[index][j, r];
+                    tempWeight += relatedСlasses[index][j, r];
                 }
 
-                if (minW > w)
+                if (minWeight > tempWeight)
                 {
-                    minW = w;
-                    NumVector = j;
+                    minWeight = tempWeight;
+                    numVector = j;
                 }
             }
 
-            var result = new List<int>();
+            var errorVector = Enumerable
+                .Range(0, code.Count)
+                .Select(i => relatedСlasses[index][numVector, i])
+                .ToList();
 
-            for (int i = 0; i < code.Count; i++)
-            {
-                result.Add(code[i] - RelatedСlass[index][NumVector, i]);
-            }
+            Console.WriteLine($"Error vector {errorVector.ToStringJoin()}");
 
-            for (int i = 0; i < result.Count; i++)
-            {
-                if (result[i] < 0)
-                    result[i] = 2 + result[i];
-            }
+            var result = Sum_Vector(code, errorVector);
 
             return result;
         }
