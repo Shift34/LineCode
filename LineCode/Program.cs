@@ -36,95 +36,70 @@ namespace Line_Code__5_2_
 
         static void Main()
         {
-            for (int i = 0; i <= 1; i++)
-            {
-                for (int j = 0; j <= 1; j++)
-                {
-                    var list = new List<int> { i, j };
-                    var enc = Multiply_Matrix(list, G);
-
-                    for (int e = 0; e < 5; e++)
-                    {
-                        var encCopy = enc.ToList();
-                        encCopy[e] = 1 - encCopy[e];
-
-                        Console.WriteLine($"Message: {i}{j}");
-                        Console.WriteLine($"Encoded: {enc.ToStringJoin()}");
-                        Console.WriteLine($"Error in {e + 1}");
-                        Console.WriteLine($"Message with error: {encCopy.ToStringJoin()}");
-                        var dec = Decoding(encCopy);
-                        Console.WriteLine($"Decoded: {dec.ToStringJoin()}");
-                        Console.WriteLine(new string('-', 30));
-
-                        if (!dec.SequenceEqual(enc))
-                            throw new Exception();
-                    }
-                }
-            }
-
-            Console.ReadKey();
-            return;
-
-            //Console.WriteLine("Введите сообщение:");
-            //var input = Console.ReadLine();
-
-            //if (!Regex.IsMatch(input, @"^[01]+$"))
+            //for (int i = 0; i <= 1; i++)
             //{
-            //    Console.WriteLine("Ошибка ввода");
-            //    Console.ReadKey();
-            //    return;
+            //    for (int j = 0; j <= 1; j++)
+            //    {
+            //        var list = new List<int> { i, j };
+            //        var enc = Multiply_Matrix(list, G);
+
+            //        for (int e = 0; e < 5; e++)
+            //        {
+            //            var encCopy = enc.ToList();
+            //            encCopy[e] = 1 - encCopy[e];
+
+            //            Console.WriteLine($"Message: {i}{j}");
+            //            Console.WriteLine($"Encoded: {enc.ToStringJoin()}");
+            //            Console.WriteLine($"Error in {e + 1}");
+            //            Console.WriteLine($"Message with error: {encCopy.ToStringJoin()}");
+            //            var dec = Decoding(encCopy);
+            //            Console.WriteLine($"Decoded: {dec.ToStringJoin()}");
+            //            Console.WriteLine(new string('-', 30));
+
+            //            if (!dec.SequenceEqual(enc))
+            //                throw new Exception();
+            //        }
+            //    }
             //}
-
-            //var inputParsed = new List<int>
-            //{
-            //    input[0] - '0',
-            //    input[1] - '0'
-            //};
-
-            //var encoded = Multiply_Matrix(inputParsed, G);
-
-            //Console.WriteLine("Закодированное сообщение:");
-            //Console.WriteLine(encoded.ToStringJoin());
-
-            //Console.WriteLine("Введите индекс ошибки:");
-            //var errorIndex = int.Parse(Console.ReadLine()) - 1;
-            //if (errorIndex != -1)
-            //{
-            //    encoded[errorIndex] = (encoded[errorIndex] + 1) % 2;
-            //}
-            //else
-            //{
-            //    return;
-            //}
-
-            //var syndrome = Multiply_Matrix(encoded, Transpant_H).ToStringJoin();
-
-            //var errorVector = Enumerable.Repeat(0, 5).ToList();
-            //errorVector[Syndromes[syndrome] - 1] = 1;
-
-            ////if (Syndromes[syndrome] > 0)
-            ////{
-            ////    Console.WriteLine($"Ошибка в {Syndromes[syndrome]}-м бите");
-            ////    Console.WriteLine($"Синдром: {syndrome}");
-            ////    Console.WriteLine($"Вектор ошибки: {errorVector.ToStringJoin()}");
-            ////    Console.WriteLine($"Сообщение с ошибкой {encoded.ToStringJoin()}");
-            ////    //encoded = Sum_Vector(encoded, errorVector);
-            ////    Console.WriteLine($"Исправленная сообщение: {encoded.ToStringJoin()}");
-            ////}
-            ////else if (Syndromes[syndrome] == 0)
-            ////{
-            ////    Console.WriteLine("Ошибка не найдена");
-            ////}
-            ////else
-            ////{
-            ////    Console.WriteLine("Восстановить сообщение без ошибок невозможно");
-            ////}
-
-            //Console.WriteLine($"{encoded.ToStringJoin()}");
-            //var d = Decoding(encoded, Transpant_H);
-            //Console.WriteLine(d.ToStringJoin());
 
             //Console.ReadKey();
+            //return;
+
+
+            Console.WriteLine("Введите сообщение:");
+            var input = Console.ReadLine();
+
+            if (!Regex.IsMatch(input, @"^[01]+$"))
+            {
+                Console.WriteLine("Ошибка ввода");
+                Console.ReadKey();
+                return;
+            }
+
+            var inputParsed = new List<int>
+            {
+                input[0] - '0',
+                input[1] - '0'
+            };
+
+            var encoded = Multiply_Matrix(inputParsed, G);
+
+            Console.WriteLine("Закодированное сообщение: {0}", encoded.ToStringJoin());
+            Console.WriteLine("Введите индекс ошибки:");
+            var errorIndex = int.Parse(Console.ReadLine()) - 1;
+
+            if (errorIndex == -1)
+            {
+                return;
+            }
+
+            encoded[errorIndex] = 1 - encoded[errorIndex];
+            Console.WriteLine("Сообщение с ошибкой: {0}", encoded.ToStringJoin());
+
+            var decoded = Decoding(encoded);
+            Console.WriteLine("Декодированное сообщение: {0}", decoded.ToStringJoin());
+
+            Console.ReadKey();
         }
 
         public static List<int> Multiply_Matrix(List<int> str, int[,] Matrix)
@@ -212,11 +187,11 @@ namespace Line_Code__5_2_
 
             var syndrome = Multiply_Matrix(code, Transpant_H).ToStringJoin();
 
-            Console.WriteLine($"Syndrome {syndrome}");
+            Console.WriteLine($"Синдром {syndrome}");
 
             if (Syndromes[syndrome] == 0)
             {
-                Console.WriteLine("No error");
+                Console.WriteLine("Ошибка не найдена");
                 return code;
             }
 
@@ -245,7 +220,7 @@ namespace Line_Code__5_2_
                 .Select(i => relatedСlasses[index][numVector, i])
                 .ToList();
 
-            Console.WriteLine($"Error vector {errorVector.ToStringJoin()}");
+            Console.WriteLine($"Вектор ошибки: {errorVector.ToStringJoin()}");
 
             var result = Sum_Vector(code, errorVector);
 
